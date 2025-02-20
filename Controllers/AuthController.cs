@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using TaskPlannerAPI.DTOs;
 using TaskPlannerAPI.Models;
+using TaskPlannerAPI.Helpers;
 
 namespace TaskPlannerAPI.Controllers;
 
@@ -13,6 +14,7 @@ namespace TaskPlannerAPI.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IConfiguration _config;
+    private static List<User> _users = new(); // Simulated user storage (db in production)
 
     public AuthController(IConfiguration config)
     {
@@ -20,18 +22,35 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Authenticates the user and generates a JWT token.
+    /// Authenticates the user and returns a JWT token.
     /// </summary>
     [HttpPost("login")]
     public IActionResult Login([FromBody] User user)
     {
-        if (user.Username == "admin" && user.Password == "password123")
+        var existingUser = _users.FirstOrDefault(u => u.Username == user.Username);
+
+        if (existingUser == null || !PasswordHasher.VerifyPassword(user.HashedPassword, existingUser.HashedPassword))
         {
-            var token = GenerateJwtToken(user.Username);
-            return Ok(new AuthResponse { Token = token });
+            return Unauthorized(new { message = "Invalid credentials" });
         }
 
-        return Unauthorized(new { message = "Invalid credentials" });
+        var token = GenerateJwtToken(user.Username);
+        return Ok(new { Token = token });
+    }
+
+    /// <summary>
+    /// Registers a new user with a hashed password.
+    /// </summary>
+    [HttpPost("register")]
+    public IActionResult Register([FromBody] User user)
+    {
+        if (_users.Any(u => u.Username == user.Username))
+            return BadRequest(new { message = "Username already exists" });
+
+        user.HashedPassword = PasswordHasher.HashPassword(user.HashedPassword);
+        _users.Add(user);
+
+        return Ok(new { message = "User registered successfully" });
     }
 
     private string GenerateJwtToken(string username)
