@@ -127,5 +127,26 @@ namespace TaskPlannerAPI.Controllers
 
             return labels;
         }
+
+        /// <summary>
+        /// Removes a label from a task.
+        /// </summary>
+        /// <param name="taskId">Task ID</param>
+        /// <param name="labelId">Label ID</param>
+        /// <returns>No content.</returns>
+        [HttpDelete("{labelId}/unassign/{taskId}")]
+        public async Task<IActionResult> RemoveLabelFromTask(int labelId, int taskId)
+        {
+            var taskLabel = await _context.TaskLabels
+                .FirstOrDefaultAsync(tl => tl.TaskItemId == taskId && tl.LabelId == labelId);
+
+            if (taskLabel == null)
+                return NotFound();
+
+            _context.TaskLabels.Remove(taskLabel);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
