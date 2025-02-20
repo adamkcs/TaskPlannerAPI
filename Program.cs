@@ -5,6 +5,8 @@ using Microsoft.OpenApi.Models;
 using TaskPlannerAPI.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Identity;
+using TaskPlannerAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,10 +56,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Config EF Core with SQL
 builder.Services.AddDbContext<TaskDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure JWT Authentication
+// Config .NET identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+// Config JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"]
     ?? throw new ArgumentNullException("SecretKey is missing in configuration."));
