@@ -109,5 +109,23 @@ namespace TaskPlannerAPI.Controllers
 
             return labels;
         }
+
+        /// <summary>
+        /// Gets all labels associated with a specific task.
+        /// </summary>
+        /// <param name="taskId">The ID of the task</param>
+        /// <returns>List of labels.</returns>
+        [HttpGet("task/{taskId}")]
+        public async Task<ActionResult<IEnumerable<Label>>> GetLabelsByTask(int taskId)
+        {
+            var labels = await _context.Labels
+                .Where(label => label.TaskLabels.Any(tl => tl.TaskItemId == taskId))
+                .ToListAsync();
+
+            if (!labels.Any())
+                return NotFound();
+
+            return labels;
+        }
     }
 }

@@ -15,5 +15,6 @@
         public ApplicationUser? AssignedUser { get; set; }
         public List<Comment>? Comments { get; set; }
         public List<Label>? Labels { get; set; }
+        public ICollection<TaskLabel> TaskLabels { get; set; } = new List<TaskLabel>();
     }
 }

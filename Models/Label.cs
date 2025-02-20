@@ -5,5 +5,6 @@
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty; // e.g., "Bug", "Feature"
         public int BoardId { get; set; }
+        public ICollection<TaskLabel> TaskLabels { get; set; } = new List<TaskLabel>();
     }
 }

@@ -16,4 +16,21 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Board> Boards { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Label> Labels { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<TaskLabel>()
+            .HasKey(tl => new { tl.TaskItemId, tl.LabelId });
+
+        modelBuilder.Entity<TaskLabel>()
+            .HasOne(tl => tl.TaskItem)
+            .WithMany(t => t.TaskLabels)
+            .HasForeignKey(tl => tl.TaskItemId);
+
+        modelBuilder.Entity<TaskLabel>()
+            .HasOne(tl => tl.Label)
+            .WithMany(l => l.TaskLabels)
+            .HasForeignKey(tl => tl.LabelId);
+    }
+
 }
