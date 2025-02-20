@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TaskPlannerAPI.Models;
 
 namespace TaskPlannerAPI.Data;
 
 /// <summary>
-/// Database context for .NET Identity.
+/// Database context using SQLite.
 /// </summary>
 public class AppDbContext : IdentityDbContext<ApplicationUser>
 {

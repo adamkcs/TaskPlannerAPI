@@ -1,11 +1,11 @@
 using System.Text;
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TaskPlannerAPI.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Identity;
 using TaskPlannerAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,7 +56,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Config EF Core with SQL
+// Config EF Core with SQLite
 builder.Services.AddDbContext<TaskDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
