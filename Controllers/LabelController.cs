@@ -148,5 +148,28 @@ namespace TaskPlannerAPI.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Gets the most frequently used labels.
+        /// </summary>
+        /// <param name="top">Number of labels to return</param>
+        /// <returns>List of most used labels.</returns>
+        [HttpGet("most-used/{top}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetMostUsedLabels(int top = 5)
+        {
+            var mostUsedLabels = await _context.TaskLabels
+                .GroupBy(tl => tl.LabelId)
+                .OrderByDescending(g => g.Count())
+                .Take(top)
+                .Select(g => new
+                {
+                    LabelId = g.Key,
+                    UsageCount = g.Count(),
+                    Label = _context.Labels.FirstOrDefault(l => l.Id == g.Key)
+                })
+                .ToListAsync();
+
+            return Ok(mostUsedLabels);
+        }
     }
 }
