@@ -1,11 +1,11 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using TaskPlannerAPI.DTOs;
 using TaskPlannerAPI.Models;
-using TaskPlannerAPI.Helpers;
 
 namespace TaskPlannerAPI.Controllers;
 
@@ -13,63 +13,68 @@ namespace TaskPlannerAPI.Controllers;
 [ApiController]
 public class AuthController : ControllerBase
 {
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly IConfiguration _config;
-    private static List<User> _users = new(); // Simulated user storage (db in production)
 
-    public AuthController(IConfiguration config)
+    public AuthController(UserManager<ApplicationUser> userManager, IConfiguration config)
     {
+        _userManager = userManager;
         _config = config;
-    }
-
-    /// <summary>
-    /// Authenticates the user and returns a JWT token.
-    /// </summary>
-    [HttpPost("login")]
-    public IActionResult Login([FromBody] User user)
-    {
-        var existingUser = _users.FirstOrDefault(u => u.Username == user.Username);
-
-        if (existingUser == null || !PasswordHasher.VerifyPassword(user.HashedPassword, existingUser.HashedPassword))
-        {
-            return Unauthorized(new { message = "Invalid credentials" });
-        }
-
-        var token = GenerateJwtToken(user.Username);
-        return Ok(new { Token = token });
     }
 
     /// <summary>
     /// Registers a new user with a hashed password.
     /// </summary>
     [HttpPost("register")]
-    public IActionResult Register([FromBody] User user)
+    public async Task<IActionResult> Register([FromBody] RegisterModel model)
     {
-        if (_users.Any(u => u.Username == user.Username))
-            return BadRequest(new { message = "Username already exists" });
+        var user = new ApplicationUser { UserName = model.Username, Email = model.Email };
+        var result = await _userManager.CreateAsync(user, model.Password);
 
-        user.HashedPassword = PasswordHasher.HashPassword(user.HashedPassword);
-        _users.Add(user);
+        if (result.Succeeded)
+        {
+            return Ok(new { message = "User registered successfully" });
+        }
 
-        return Ok(new { message = "User registered successfully" });
+        return BadRequest(result.Errors);
     }
 
-    private string GenerateJwtToken(string username)
+    /// <summary>
+    /// Authenticates the user and returns a JWT token.
+    /// </summary>
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginModel model)
+    {
+        var user = await _userManager.FindByNameAsync(model.Username);
+        if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+        {
+            var token = GenerateJwtToken(user);
+            return Ok(new { Token = token });
+        }
+
+        return Unauthorized(new { message = "Invalid credentials" });
+    }
+
+    private string GenerateJwtToken(ApplicationUser user)
     {
         var jwtSettings = _config.GetSection("JwtSettings");
-        var key = Encoding.ASCII.GetBytes(jwtSettings["SecretKey"] 
-            ?? throw new ArgumentNullException("SecretKey is missing in configuration."));
+        var key = Encoding.UTF8.GetBytes(jwtSettings["SecretKey"] ?? throw new ArgumentNullException("SecretKey is missing."));
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var tokenDescriptor = new SecurityTokenDescriptor
+        var claims = new[]
         {
-            Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, username) }),
-            Expires = DateTime.UtcNow.AddHours(1),
-            Issuer = jwtSettings["Issuer"],
-            Audience = jwtSettings["Audience"],
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-        };
+        new Claim(JwtRegisteredClaimNames.Sub, user.Id),  // Store user ID
+        new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName ?? ""),  // Store username
+    };
 
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        var token = new JwtSecurityToken(
+            issuer: jwtSettings["Issuer"],
+            audience: jwtSettings["Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(1),
+            signingCredentials: new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256)
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
 }
