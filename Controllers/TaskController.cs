@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskPlannerAPI.Data;
 using TaskPlannerAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskPlannerAPI.Controllers;
 
@@ -10,6 +11,7 @@ namespace TaskPlannerAPI.Controllers;
 /// </summary>
 [Route("api/tasks")]
 [ApiController]
+[Authorize] // All endpoints
 public class TaskController : ControllerBase
 {
     private readonly TaskDbContext _context;
