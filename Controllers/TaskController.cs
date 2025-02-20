@@ -18,7 +18,7 @@ public class TaskController : ControllerBase
 
     public TaskController(AppDbContext context)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     /// <summary>
@@ -28,7 +28,7 @@ public class TaskController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks()
     {
-        return await _context.Tasks.ToListAsync();
+        return await (_context.Tasks?.ToListAsync() ?? Task.FromResult(new List<TaskItem>()));
     }
 
     /// <summary>
@@ -41,6 +41,11 @@ public class TaskController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<TaskItem>> GetTask(int id)
     {
+        if (_context.Tasks == null)
+        {
+            return Problem("Tasks table is not available.");
+        }
+
         var task = await _context.Tasks.FindAsync(id);
         if (task == null)
             return NotFound();
@@ -56,6 +61,11 @@ public class TaskController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<TaskItem>> CreateTask(TaskItem task)
     {
+        if (_context.Tasks == null)
+        {
+            return Problem("Tasks table is not available.");
+        }
+
         _context.Tasks.Add(task);
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
@@ -87,6 +97,11 @@ public class TaskController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTask(int id)
     {
+        if (_context.Tasks == null)
+        {
+            return Problem("Tasks table is not available.");
+        }
+
         var task = await _context.Tasks.FindAsync(id);
         if (task == null)
             return NotFound();
