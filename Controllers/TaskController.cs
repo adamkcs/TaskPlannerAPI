@@ -5,6 +5,9 @@ using TaskPlannerAPI.Models;
 
 namespace TaskPlannerAPI.Controllers;
 
+/// <summary>
+/// API controller for managing tasks.
+/// </summary>
 [Route("api/tasks")]
 [ApiController]
 public class TaskController : ControllerBase
@@ -16,12 +19,23 @@ public class TaskController : ControllerBase
         _context = context;
     }
 
+    /// <summary>
+    /// Retrieves all tasks.
+    /// </summary>
+    /// <returns>List of tasks.</returns>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks()
     {
         return await _context.Tasks.ToListAsync();
     }
 
+    /// <summary>
+    /// Retrieves a specific task by ID.
+    /// </summary>
+    /// <param name="id">The task ID.</param>
+    /// <returns>The requested task.</returns>
+    /// <response code="200">Returns the requested task.</response>
+    /// <response code="404">If the task is not found.</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<TaskItem>> GetTask(int id)
     {
@@ -32,6 +46,11 @@ public class TaskController : ControllerBase
         return task;
     }
 
+    /// <summary>
+    /// Creates a new task.
+    /// </summary>
+    /// <param name="task">Task object to create.</param>
+    /// <returns>The created task.</returns>
     [HttpPost]
     public async Task<ActionResult<TaskItem>> CreateTask(TaskItem task)
     {
@@ -40,6 +59,12 @@ public class TaskController : ControllerBase
         return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
     }
 
+    /// <summary>
+    /// Updates an existing task.
+    /// </summary>
+    /// <param name="id">Task ID.</param>
+    /// <param name="task">Updated task object.</param>
+    /// <returns>No content on success.</returns>
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTask(int id, TaskItem task)
     {
@@ -52,6 +77,11 @@ public class TaskController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Deletes a task by ID.
+    /// </summary>
+    /// <param name="id">The task ID.</param>
+    /// <returns>No content on success.</returns>
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTask(int id)
     {
