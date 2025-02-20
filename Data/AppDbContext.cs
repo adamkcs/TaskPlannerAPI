@@ -19,6 +19,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
+        // Many to Many: TaskItem <> Labels
         modelBuilder.Entity<TaskLabel>()
             .HasKey(tl => new { tl.TaskItemId, tl.LabelId });
 
