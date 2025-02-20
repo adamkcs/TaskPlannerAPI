@@ -22,13 +22,13 @@ namespace TaskPlannerAPI.Controllers
         }
 
         /// <summary>
-        /// Gets all tasks.
+        /// Gets all TaskItems.
         /// </summary>
-        /// <returns>List of tasks.</returns>
+        /// <returns>List of TaskItems.</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks()
+        public async Task<ActionResult<IEnumerable<TaskItem>>> GetTaskItems()
         {
-            return await _context.Tasks.Include(t => t.Labels).Include(t => t.Comments).ToListAsync();
+            return await _context.TaskItems.Include(t => t.Labels).Include(t => t.Comments).ToListAsync();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace TaskPlannerAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TaskItem>> GetTask(int id)
         {
-            var task = await _context.Tasks.Include(t => t.Labels).Include(t => t.Comments).FirstOrDefaultAsync(t => t.Id == id);
+            var task = await _context.TaskItems.Include(t => t.Labels).Include(t => t.Comments).FirstOrDefaultAsync(t => t.Id == id);
             if (task == null)
                 return NotFound();
             return task;
@@ -53,7 +53,7 @@ namespace TaskPlannerAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<TaskItem>> CreateTask(TaskItem task)
         {
-            _context.Tasks.Add(task);
+            _context.TaskItems.Add(task);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
         }
@@ -83,11 +83,11 @@ namespace TaskPlannerAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
-            var task = await _context.Tasks.FindAsync(id);
+            var task = await _context.TaskItems.FindAsync(id);
             if (task == null)
                 return NotFound();
 
-            _context.Tasks.Remove(task);
+            _context.TaskItems.Remove(task);
             await _context.SaveChangesAsync();
             return NoContent();
         }
@@ -101,7 +101,7 @@ namespace TaskPlannerAPI.Controllers
         [HttpPatch("{id}/move")]
         public async Task<IActionResult> MoveTaskToList(int id, [FromBody] int newTaskListId)
         {
-            var task = await _context.Tasks.FindAsync(id);
+            var task = await _context.TaskItems.FindAsync(id);
             if (task == null)
                 return NotFound();
 
@@ -117,9 +117,9 @@ namespace TaskPlannerAPI.Controllers
         /// <param name="newStatus">New task status</param>
         /// <returns>No content.</returns>
         [HttpPatch("{id}/status")]
-        public async Task<IActionResult> UpdateTaskStatus(int id, [FromBody] string newStatus)
+        public async Task<IActionResult> UpdateTaskItemstatus(int id, [FromBody] string newStatus)
         {
-            var task = await _context.Tasks.FindAsync(id);
+            var task = await _context.TaskItems.FindAsync(id);
             if (task == null)
                 return NotFound();
 
