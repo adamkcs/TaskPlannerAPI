@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  taskplanner-api:
+    build: .
+    container_name: taskplanner_api
+    ports:
+      - "8080:8080"
+    volumes:
+      - sqlite-data:/app  # Mount volume to persist database file
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+volumes:
+  sqlite-data:  # Named volume to persist SQLite database
