@@ -57,7 +57,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Config EF Core with SQLite
-builder.Services.AddDbContext<TaskDbContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Config .NET identity

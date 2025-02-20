@@ -14,9 +14,9 @@ namespace TaskPlannerAPI.Controllers;
 [Authorize] // All endpoints
 public class TaskController : ControllerBase
 {
-    private readonly TaskDbContext _context;
+    private readonly AppDbContext _context;
 
-    public TaskController(TaskDbContext context)
+    public TaskController(AppDbContext context)
     {
         _context = context;
     }
