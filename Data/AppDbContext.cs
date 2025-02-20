@@ -15,4 +15,5 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TaskList> TaskLists { get; set; }
     public DbSet<Board> Boards { get; set; }
     public DbSet<Comment> Comments { get; set; }
+    public DbSet<Label> Labels { get; set; }
 }
