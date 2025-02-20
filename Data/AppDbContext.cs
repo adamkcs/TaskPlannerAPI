@@ -16,6 +16,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Board> Boards { get; set; }
     public DbSet<Comment> Comments { get; set; }
     public DbSet<Label> Labels { get; set; }
+    public DbSet<TaskLabel> TaskLabels { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
