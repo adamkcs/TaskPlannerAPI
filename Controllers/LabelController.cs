@@ -91,5 +91,23 @@ namespace TaskPlannerAPI.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
+        /// <summary>
+        /// Gets all labels associated with a specific board.
+        /// </summary>
+        /// <param name="boardId">The ID of the board</param>
+        /// <returns>List of labels.</returns>
+        [HttpGet("board/{boardId}")]
+        public async Task<ActionResult<IEnumerable<Label>>> GetLabelsByBoard(int boardId)
+        {
+            var labels = await _context.Labels
+                .Where(label => label.BoardId == boardId)
+                .ToListAsync();
+
+            if (!labels.Any())
+                return NotFound();
+
+            return labels;
+        }
     }
 }
