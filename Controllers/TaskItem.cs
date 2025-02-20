@@ -99,7 +99,7 @@ namespace TaskPlannerAPI.Controllers
         /// <param name="newTaskListId">New task list ID</param>
         /// <returns>No content.</returns>
         [HttpPatch("{id}/move")]
-        public async Task<IActionResult> MoveTask(int id, [FromBody] int newTaskListId)
+        public async Task<IActionResult> MoveTaskToList(int id, [FromBody] int newTaskListId)
         {
             var task = await _context.Tasks.FindAsync(id);
             if (task == null)
