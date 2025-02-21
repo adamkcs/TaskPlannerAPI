@@ -148,5 +148,20 @@ namespace TaskPlannerAPI.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Gets all active tasks for a board.
+        /// </summary>
+        /// <param name="boardId">The ID of the board</param>
+        /// <returns>List of active tasks.</returns>
+        [HttpGet("{boardId}/active-tasks")]
+        public async Task<ActionResult<IEnumerable<TaskItem>>> GetActiveTasks(int boardId)
+        {
+            var tasks = await _context.TaskItems
+                .Where(t => t.BoardId == boardId && !t.IsArchived)
+                .ToListAsync();
+
+            return Ok(tasks);
+        }
     }
 }
