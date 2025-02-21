@@ -7,5 +7,5 @@ namespace TaskPlannerAPI.Models;
 /// </summary>
 public class ApplicationUser : IdentityUser
 {
-    // Custom fields
+    public ICollection<UserBoard> UserBoards { get; set; }
 }
