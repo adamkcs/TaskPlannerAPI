@@ -109,5 +109,23 @@ namespace TaskPlannerAPI.Controllers
 
             return Ok(boards);
         }
+
+        /// <summary>
+        /// Assigns a user to a board.
+        /// </summary>
+        /// <param name="boardId">Board ID</param>
+        /// <param name="userId">User ID</param>
+        /// <returns>No content.</returns>
+        [HttpPost("{boardId}/assign/{userId}")]
+        public async Task<IActionResult> AssignUserToBoard(int boardId, string userId)
+        {
+            if (_context.UserBoards.Any(ub => ub.BoardId == boardId && ub.UserId == userId))
+                return BadRequest("User is already assigned to this board.");
+
+            _context.UserBoards.Add(new UserBoard { BoardId = boardId, UserId = userId });
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
