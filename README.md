@@ -3,6 +3,9 @@
 ## Overview
 The **Task Planner API** is a .NET 8 task management system backend that allows users to create, assign, and track tasks in a structured board format, similar to a Kanban system.
 
+## Project Status
+In development stage.
+
 ## Features
 - **User Authentication & Authorization** using .NET Identity and JWT
 - **Task Management** with CRUD operations
@@ -31,7 +34,7 @@ Ensure you have the following installed:
 ### Running Locally
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-repo/task-planner-api.git
+   git clone https://github.com/adamkcs/TaskPlannerAPI.git
    cd task-planner-api
    ```
 2. Install dependencies:
@@ -65,11 +68,9 @@ The API follows a relational database structure with key models:
 - **User** – Manages authentication and user roles
 - **Board** – A collection of tasks
 - **Task** – Assignable work items
+- **Task List** – Assignable work items
 - **Label** – Categorization tags
 - **Comment** – Task discussions
-
-## Contributing
-Feel free to submit issues or PRs to improve the project. Contributions are welcome!
 
 ## License
 MIT License © 2025 Task Planner API
