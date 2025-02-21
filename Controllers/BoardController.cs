@@ -127,5 +127,26 @@ namespace TaskPlannerAPI.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Removes a user from a board.
+        /// </summary>
+        /// <param name="boardId">Board ID</param>
+        /// <param name="userId">User ID</param>
+        /// <returns>No content.</returns>
+        [HttpDelete("{boardId}/unassign/{userId}")]
+        public async Task<IActionResult> RemoveUserFromBoard(int boardId, string userId)
+        {
+            var userBoard = await _context.UserBoards
+                .FirstOrDefaultAsync(ub => ub.BoardId == boardId && ub.UserId == userId);
+
+            if (userBoard == null)
+                return NotFound();
+
+            _context.UserBoards.Remove(userBoard);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
