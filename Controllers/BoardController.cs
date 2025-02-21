@@ -90,5 +90,24 @@ namespace TaskPlannerAPI.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
+        /// <summary>
+        /// Gets all boards for a specific user.
+        /// </summary>
+        /// <param name="userId">The ID of the user</param>
+        /// <returns>List of boards.</returns>
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<Board>>> GetBoardsByUser(string userId)
+        {
+            var boards = await _context.UserBoards
+                .Where(ub => ub.UserId == userId)
+                .Select(ub => ub.Board)
+                .ToListAsync();
+
+            if (!boards.Any())
+                return NotFound();
+
+            return Ok(boards);
+        }
     }
 }
