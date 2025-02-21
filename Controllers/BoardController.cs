@@ -109,5 +109,59 @@ namespace TaskPlannerAPI.Controllers
 
             return Ok(boards);
         }
+
+        /// <summary>
+        /// Assigns a user to a board.
+        /// </summary>
+        /// <param name="boardId">Board ID</param>
+        /// <param name="userId">User ID</param>
+        /// <returns>No content.</returns>
+        [HttpPost("{boardId}/assign/{userId}")]
+        public async Task<IActionResult> AssignUserToBoard(int boardId, string userId)
+        {
+            if (_context.UserBoards.Any(ub => ub.BoardId == boardId && ub.UserId == userId))
+                return BadRequest("User is already assigned to this board.");
+
+            _context.UserBoards.Add(new UserBoard { BoardId = boardId, UserId = userId });
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Removes a user from a board.
+        /// </summary>
+        /// <param name="boardId">Board ID</param>
+        /// <param name="userId">User ID</param>
+        /// <returns>No content.</returns>
+        [HttpDelete("{boardId}/unassign/{userId}")]
+        public async Task<IActionResult> RemoveUserFromBoard(int boardId, string userId)
+        {
+            var userBoard = await _context.UserBoards
+                .FirstOrDefaultAsync(ub => ub.BoardId == boardId && ub.UserId == userId);
+
+            if (userBoard == null)
+                return NotFound();
+
+            _context.UserBoards.Remove(userBoard);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Gets all active tasks for a board.
+        /// </summary>
+        /// <param name="boardId">The ID of the board</param>
+        /// <returns>List of active tasks.</returns>
+        [HttpGet("{boardId}/active-tasks")]
+        public async Task<ActionResult<IEnumerable<TaskItem>>> GetActiveTasks(int boardId)
+        {
+            var tasks = await _context.TaskItems
+                .Where(t => t.BoardId == boardId && !t.IsArchived)
+                .ToListAsync();
+
+            return Ok(tasks);
+        }
     }
 }
