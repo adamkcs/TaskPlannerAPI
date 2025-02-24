@@ -127,5 +127,106 @@ namespace TaskPlannerAPI.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
+        /// <summary>
+        /// Gets tasks based on filters like priority, completion status, and due dates.
+        /// </summary>
+        /// <param name="status">Optional: "completed", "pending".</param>
+        /// <param name="priority">Optional: "low", "medium", "high".</param>
+        /// <param name="dueDate">Optional: Only tasks due before this date.</param>
+        /// <returns>List of filtered tasks.</returns>
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<TaskItem>>> GetFilteredTasks(
+            [FromQuery] string status = null,
+            [FromQuery] string priority = null,
+            [FromQuery] DateTime? dueDate = null)
+        {
+            var query = _context.Tasks.AsQueryable();
+
+            if (status == "completed")
+                query = query.Where(t => t.IsCompleted);
+            else if (status == "pending")
+                query = query.Where(t => !t.IsCompleted);
+
+            if (!string.IsNullOrEmpty(priority))
+                query = query.Where(t => t.Priority == priority);
+
+            if (dueDate.HasValue)
+                query = query.Where(t => t.DueDate <= dueDate);
+
+            var tasks = await query.ToListAsync();
+            return Ok(tasks);
+        }
+
+        /// <summary>
+        /// Updates the status of multiple tasks in bulk.
+        /// </summary>
+        /// <param name="taskIds">List of task IDs to update.</param>
+        /// <param name="isCompleted">New completion status.</param>
+        /// <returns>No content.</returns>
+        [HttpPut("bulk-update-status")]
+        public async Task<IActionResult> BulkUpdateStatus([FromBody] List<int> taskIds, [FromQuery] bool isCompleted)
+        {
+            var tasks = await _context.Tasks.Where(t => taskIds.Contains(t.Id)).ToListAsync();
+
+            if (!tasks.Any())
+                return NotFound("No tasks found.");
+
+            foreach (var task in tasks)
+                task.IsCompleted = isCompleted;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Assigns a dependency between tasks (Task B depends on Task A).
+        /// </summary>
+        /// <param name="taskId">The dependent task.</param>
+        /// <param name="dependencyId">The task it depends on.</param>
+        /// <returns>Updated task details.</returns>
+        [HttpPut("{taskId}/depends-on/{dependencyId}")]
+        public async Task<IActionResult> SetTaskDependency(int taskId, int dependencyId)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            var dependency = await _context.Tasks.FindAsync(dependencyId);
+
+            if (task == null || dependency == null)
+                return NotFound("Task or dependency not found.");
+
+            task.DependencyTaskId = dependencyId;
+            await _context.SaveChangesAsync();
+            return Ok(task);
+        }
+
+        /// <summary>
+        /// Retrieves all overdue tasks.
+        /// </summary>
+        /// <returns>List of overdue tasks.</returns>
+        [HttpGet("overdue")]
+        public async Task<ActionResult<IEnumerable<TaskItem>>> GetOverdueTasks()
+        {
+            var today = DateTime.UtcNow;
+            var overdueTasks = await _context.Tasks
+                .Where(t => !t.IsCompleted && t.DueDate < today)
+                .ToListAsync();
+
+            return Ok(overdueTasks);
+        }
+
+        /// <summary>
+        /// Gets all tasks assigned to a specific user.
+        /// </summary>
+        /// <param name="userId">User ID.</param>
+        /// <returns>List of tasks assigned to the user.</returns>
+        [HttpGet("user/{userId}")]
+        public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasksByUser(string userId)
+        {
+            var tasks = await _context.Tasks
+                .Where(t => t.AssignedUserId == userId)
+                .ToListAsync();
+
+            return Ok(tasks);
+        }
     }
 }
