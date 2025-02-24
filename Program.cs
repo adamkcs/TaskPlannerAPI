@@ -93,6 +93,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+// Add ElasticSearch
+builder.Services.AddSingleton<ElasticsearchService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
