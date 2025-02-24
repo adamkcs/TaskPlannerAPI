@@ -24,8 +24,8 @@
         public int BoardId { get; set; }
         public Board Board { get; set; }
 
-        public int? DependencyTaskId { get; set; } // Nullable for tasks without dependencies
-        public TaskItem? DependencyTask { get; set; }
+        public int? DependencyTaskItemId { get; set; } // Nullable for tasks without dependencies
+        public TaskItem? DependencyTaskItem { get; set; }
 
         public List<Comment>? Comments { get; set; }
 
