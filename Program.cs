@@ -7,6 +7,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TaskPlannerAPI.Data;
 using TaskPlannerAPI.Models;
+using Elasticsearch.Net;
+using Nest;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -92,6 +94,9 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+
+// Add ElasticSearch
+builder.Services.AddSingleton<ElasticsearchService>();
 
 var app = builder.Build();
 

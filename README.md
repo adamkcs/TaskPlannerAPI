@@ -14,9 +14,10 @@ In development stage.
 - **SQLite Database Support** with Entity Framework Core
 - **Dockerized Deployment** for scalable and portable usage
 - **Swagger API Documentation** for easy API testing
+- **Elasticsearch** for indexed search operations.
 
 ## Tech Stack
-- **Backend:** .NET 8, ASP.NET Core Web API, Entity Framework Core
+- **Backend:** .NET 8, ASP.NET Core Web API, Entity Framework Core, Elasticsearch
 - **Database:** SQLite (can be swapped with SQL Server/PostgreSQL)
 - **Authentication:** .NET Identity with JWT authentication
 - **Containerization:** Docker
