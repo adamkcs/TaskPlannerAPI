@@ -50,6 +50,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(ub => ub.Board)
             .WithMany(b => b.UserBoards)
             .HasForeignKey(ub => ub.BoardId);
+
+        // Dependant Task Items
+        modelBuilder.Entity<TaskItem>()
+            .HasOne(t => t.DependencyTaskItem)
+            .WithMany() // No inverse navigation needed
+            .HasForeignKey(t => t.DependencyTaskItemId)
+            .OnDelete(DeleteBehavior.Restrict); // Prevent cascading deletes
     }
 
 }

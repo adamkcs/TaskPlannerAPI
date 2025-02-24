@@ -138,17 +138,17 @@ namespace TaskPlannerAPI.Controllers
         [HttpGet("filter")]
         public async Task<ActionResult<IEnumerable<TaskItem>>> GetFilteredTasks(
             [FromQuery] string status = null,
-            [FromQuery] string priority = null,
+            [FromQuery] int priority = 0,
             [FromQuery] DateTime? dueDate = null)
         {
-            var query = _context.Tasks.AsQueryable();
+            var query = _context.TaskItems.AsQueryable();
 
             if (status == "completed")
                 query = query.Where(t => t.IsCompleted);
             else if (status == "pending")
                 query = query.Where(t => !t.IsCompleted);
 
-            if (!string.IsNullOrEmpty(priority))
+            if (priority > 0)
                 query = query.Where(t => t.Priority == priority);
 
             if (dueDate.HasValue)
@@ -167,7 +167,7 @@ namespace TaskPlannerAPI.Controllers
         [HttpPut("bulk-update-status")]
         public async Task<IActionResult> BulkUpdateStatus([FromBody] List<int> taskIds, [FromQuery] bool isCompleted)
         {
-            var tasks = await _context.Tasks.Where(t => taskIds.Contains(t.Id)).ToListAsync();
+            var tasks = await _context.TaskItems.Where(t => taskIds.Contains(t.Id)).ToListAsync();
 
             if (!tasks.Any())
                 return NotFound("No tasks found.");
@@ -182,19 +182,19 @@ namespace TaskPlannerAPI.Controllers
         /// <summary>
         /// Assigns a dependency between tasks (Task B depends on Task A).
         /// </summary>
-        /// <param name="taskId">The dependent task.</param>
+        /// <param name="taskItemId">The dependent task.</param>
         /// <param name="dependencyId">The task it depends on.</param>
         /// <returns>Updated task details.</returns>
         [HttpPut("{taskId}/depends-on/{dependencyId}")]
-        public async Task<IActionResult> SetTaskDependency(int taskId, int dependencyId)
+        public async Task<IActionResult> SetTaskItemDependency(int taskItemId, int dependencyId)
         {
-            var task = await _context.Tasks.FindAsync(taskId);
-            var dependency = await _context.Tasks.FindAsync(dependencyId);
+            var task = await _context.TaskItems.FindAsync(taskItemId);
+            var dependency = await _context.TaskItems.FindAsync(dependencyId);
 
             if (task == null || dependency == null)
                 return NotFound("Task or dependency not found.");
 
-            task.DependencyTaskId = dependencyId;
+            task.DependencyTaskItemId = dependencyId;
             await _context.SaveChangesAsync();
             return Ok(task);
         }
@@ -207,7 +207,7 @@ namespace TaskPlannerAPI.Controllers
         public async Task<ActionResult<IEnumerable<TaskItem>>> GetOverdueTasks()
         {
             var today = DateTime.UtcNow;
-            var overdueTasks = await _context.Tasks
+            var overdueTasks = await _context.TaskItems
                 .Where(t => !t.IsCompleted && t.DueDate < today)
                 .ToListAsync();
 
@@ -222,7 +222,7 @@ namespace TaskPlannerAPI.Controllers
         [HttpGet("user/{userId}")]
         public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasksByUser(string userId)
         {
-            var tasks = await _context.Tasks
+            var tasks = await _context.TaskItems
                 .Where(t => t.AssignedUserId == userId)
                 .ToListAsync();
 
