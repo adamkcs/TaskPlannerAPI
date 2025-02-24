@@ -28,7 +28,7 @@ namespace TaskPlannerAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TaskList>>> GetTaskLists()
         {
-            return await _context.TaskLists.Include(t => t.Tasks).ToListAsync();
+            return await _context.TaskLists.Include(t => t.TaskItems).ToListAsync();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace TaskPlannerAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TaskList>> GetTaskList(int id)
         {
-            var taskList = await _context.TaskLists.Include(t => t.Tasks).FirstOrDefaultAsync(t => t.Id == id);
+            var taskList = await _context.TaskLists.Include(t => t.TaskItems).FirstOrDefaultAsync(t => t.Id == id);
             if (taskList == null)
                 return NotFound();
             return taskList;
@@ -101,15 +101,15 @@ namespace TaskPlannerAPI.Controllers
         [HttpGet("{listId}/tasks")]
         public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasksByList(int listId, [FromQuery] string status = null)
         {
-            var query = _context.Tasks.Where(t => t.TaskListId == listId);
+            var query = _context.TaskItems.Where(t => t.TaskListId == listId);
 
             if (status == "completed")
                 query = query.Where(t => t.IsCompleted);
             else if (status == "pending")
                 query = query.Where(t => !t.IsCompleted);
 
-            var tasks = await query.ToListAsync();
-            return Ok(tasks);
+            var taskItems = await query.ToListAsync();
+            return Ok(taskItems);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace TaskPlannerAPI.Controllers
         [HttpPut("move-task/{taskId}/to/{newListId}")]
         public async Task<IActionResult> MoveTask(int taskId, int newListId)
         {
-            var task = await _context.Tasks.FindAsync(taskId);
+            var task = await _context.TaskItems.FindAsync(taskId);
             if (task == null)
                 return NotFound("Task not found.");
 
@@ -142,7 +142,7 @@ namespace TaskPlannerAPI.Controllers
                 {
                     l.Id,
                     l.Name,
-                    TaskCount = _context.Tasks.Count(t => t.TaskListId == l.Id)
+                    TaskItemCount = _context.TaskItems.Count(t => t.TaskListId == l.Id)
                 })
                 .ToListAsync();
 
@@ -157,13 +157,13 @@ namespace TaskPlannerAPI.Controllers
         [HttpGet("{listId}/completion-ratio")]
         public async Task<ActionResult<object>> GetCompletionRatio(int listId)
         {
-            var totalTasks = await _context.Tasks.CountAsync(t => t.TaskListId == listId);
-            var completedTasks = await _context.Tasks.CountAsync(t => t.TaskListId == listId && t.IsCompleted);
+            var totalTaskItems = await _context.TaskItems.CountAsync(t => t.TaskListId == listId);
+            var completedTaskItems = await _context.TaskItems.CountAsync(t => t.TaskListId == listId && t.IsCompleted);
 
-            if (totalTasks == 0)
-                return Ok(new { CompletionRatio = "N/A (No Tasks)" });
+            if (totalTaskItems == 0)
+                return Ok(new { CompletionRatio = "N/A (No Task Items)" });
 
-            double ratio = (double)completedTasks / totalTasks;
+            double ratio = (double)completedTaskItems / totalTaskItems;
             return Ok(new { CompletionRatio = ratio.ToString("P1") });
         }
     }
