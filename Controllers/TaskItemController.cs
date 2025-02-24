@@ -15,10 +15,14 @@ namespace TaskPlannerAPI.Controllers
     public class TaskItemController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly ElasticsearchService _elasticsearchService;
 
-        public TaskItemController(AppDbContext context)
+        public TaskItemController(
+            AppDbContext context,
+            ElasticsearchService elasticsearchService)
         {
             _context = context;
+            _elasticsearchService = elasticsearchService;
         }
 
         /// <summary>
@@ -55,6 +59,7 @@ namespace TaskPlannerAPI.Controllers
         {
             _context.TaskItems.Add(task);
             await _context.SaveChangesAsync();
+            await _elasticsearchService.IndexTaskAsync(task);
             return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
         }
 
@@ -72,6 +77,7 @@ namespace TaskPlannerAPI.Controllers
 
             _context.Entry(updatedTask).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+            await _elasticsearchService.IndexTaskAsync(updatedTask);
             return NoContent();
         }
 
@@ -227,6 +233,41 @@ namespace TaskPlannerAPI.Controllers
                 .ToListAsync();
 
             return Ok(tasks);
+        }
+
+        // ElasticSearch Setup ////////////////////////////////////////////////
+        /// <summary>
+        /// Index a task for search in Elasticsearch.
+        /// </summary>
+        /// <param name="id">Task ID</param>
+        /// <returns>Success or failure message.</returns>
+        [HttpPost("{id}/index")]
+        public async Task<IActionResult> IndexTask(int id)
+        {
+            var task = await _context.TaskItems.FindAsync(id);
+            if (task == null)
+                return NotFound("Task not found.");
+
+            bool isIndexed = await _elasticsearchService.IndexTaskAsync(task);
+            if (!isIndexed)
+                return BadRequest("Failed to index task.");
+
+            return Ok("Task indexed successfully.");
+        }
+
+        /// <summary>
+        /// Search tasks by title or description.
+        /// </summary>
+        /// <param name="query">Search term.</param>
+        /// <returns>List of matching tasks.</returns>
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchTasks([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest("Query cannot be empty.");
+
+            var results = await _elasticsearchService.SearchTasksAsync(query);
+            return Ok(results);
         }
     }
 }
