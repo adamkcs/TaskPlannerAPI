@@ -103,13 +103,17 @@ builder.Services.AddSingleton<IElasticClient>(elasticClient);
 builder.Services.AddSingleton<ElasticsearchService>();
 
 // Config CORS for public access
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+    ?? throw new ArgumentNullException("Allowed origins are missing in configuration.");
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("PublicPolicy",
-        policy => policy
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod());
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
 });
 
 var app = builder.Build();
