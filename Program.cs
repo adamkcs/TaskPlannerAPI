@@ -96,6 +96,10 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 // Add ElasticSearch
+var settings = new ConnectionSettings(new Uri("http://localhost:9200"))
+    .DefaultIndex("tasks");
+var elasticClient = new ElasticClient(settings);
+builder.Services.AddSingleton<IElasticClient>(elasticClient);
 builder.Services.AddSingleton<ElasticsearchService>();
 
 var app = builder.Build();
