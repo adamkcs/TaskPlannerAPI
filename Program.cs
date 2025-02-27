@@ -102,6 +102,16 @@ var elasticClient = new ElasticClient(settings);
 builder.Services.AddSingleton<IElasticClient>(elasticClient);
 builder.Services.AddSingleton<ElasticsearchService>();
 
+// Config CORS for public access
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PublicPolicy",
+        policy => policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -114,6 +124,9 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty; // Serve Swagger UI at root URL
     });
 }
+
+// Apply CORS globally
+app.UseCors("PublicPolicy");
 
 // Enable authentication & authorization middleware
 app.UseAuthentication();
