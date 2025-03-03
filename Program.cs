@@ -130,7 +130,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // Apply CORS globally
-app.UseCors("PublicPolicy");
+app.UseCors("CorsPolicy");
 
 // Enable authentication & authorization middleware
 app.UseAuthentication();
