@@ -1,77 +1,46 @@
-﻿# Task Planner API
+# TaskPlanner Frontend
 
-## Overview
-The **Task Planner API** is a .NET 8 task management system backend that allows users to create, assign, and track tasks in a structured board format, similar to a Kanban system.
+This is the **React/Next.js** frontend for the **TaskPlanner API**, built with TypeScript. It provides user authentication, a protected dashboard, and integration with a **.NET backend**.
 
-## Project Status
-In development stage.
+## 🚀 Features
 
-## Features
-- **User Authentication & Authorization** using .NET Identity and JWT
-- **Task Management** with CRUD operations
-- **Board Management** for organizing tasks
-- **Labels & Comments** for additional task details
-- **SQLite Database Support** with Entity Framework Core
-- **Dockerized Deployment** for scalable and portable usage
-- **Swagger API Documentation** for easy API testing
-- **Elasticsearch** for indexed search operations.
+✅ **User Authentication** (JWT-based)  
+✅ **Login & Registration**  
+✅ **Protected Routes** (AuthGuard & Middleware)  
+✅ **Global State Management** with React Context  
+✅ **API Integration** with Axios  
+✅ **Next.js Pages & Routing**  
 
-## Tech Stack
-- **Backend:** .NET 8, ASP.NET Core Web API, Entity Framework Core, Elasticsearch
-- **Database:** SQLite (can be swapped with SQL Server/PostgreSQL)
-- **Authentication:** .NET Identity with JWT authentication
-- **Containerization:** Docker
-- **Frontend:** Angular (later)
+---
 
-## API Endpoints
-See Swagger
+## 🛠️ Tech Stack
 
-### Prerequisites
-Ensure you have the following installed:
-- .NET 8 SDK
-- Docker
-- SQLite
+- **Frontend:** React, Next.js, TypeScript  
+- **State Management:** React Context API  
+- **Authentication:** JWT (stored in `localStorage`)  
+- **HTTP Client:** Axios  
+- **Backend:** `.NET TaskPlanner API`  
 
-### Running Locally
-1. Clone the repository:
-   ```sh
-   git clone https://github.com/adamkcs/TaskPlannerAPI.git
-   cd task-planner-api
-   ```
-2. Install dependencies:
-   ```sh
-   dotnet restore
-   ```
-3. Run database migrations:
-   ```sh
-   dotnet ef database update
-   ```
-4. Start the API:
-   ```sh
-   dotnet run
-   ```
-5. Access Swagger UI at:
-   ```sh
-   http://localhost:8080/swagger
-   ```
+---
 
-### Running with Docker
-1. Build and start the container:
-   ```sh
-   docker-compose up --build
-   ```
-2. Access the API at `http://localhost:8080`
+## 📂 Project Structure
+/task-planner-frontend 
+│── /components # Reusable UI components 
+│── /context # AuthContext for authentication 
+│── /pages 
+│ ├── index.tsx # Landing page 
+│ ├── login.tsx # Login page 
+│ ├── register.tsx # Registration page 
+│ ├── dashboard.tsx # Protected dashboard 
+│── /services # API calls (login, register, session) 
+│── /utils # Helper functions 
+│── middleware.ts # Next.js middleware for route protection 
+│── _app.tsx # Global app wrapper 
+│── README.md # Documentation
 
-## Database Structure
-
-The API follows a relational database structure with key models:
-
-- **User** – Manages authentication and user roles
-- **Board** – A collection of tasks
-- **Task** – Assignable work items
-- **Task List** – Assignable work items
-- **Label** – Categorization tags
-- **Comment** – Task discussions
-
-## License
-MIT License © 2025 Task Planner API
+## 🔧 Setup & Installation
+git clone https://github.com/your-repo/task-planner-frontend.git
+cd task-planner-frontend
+npm install
+npm run dev
+http://localhost:3001
