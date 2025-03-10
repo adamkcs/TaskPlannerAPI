@@ -1,4 +1,5 @@
 # TaskPlanner Frontend
+## (Under development)
 
 This is the **React/Next.js** frontend for the **TaskPlanner API**, built with TypeScript. It provides user authentication, a protected dashboard, and integration with a **.NET backend**.
 
